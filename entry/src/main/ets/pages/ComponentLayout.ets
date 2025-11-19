@@ -1,4 +1,14 @@
-// @Entry
+//初始入口
+@Entry
+@Component
+struct Start {
+  build() {
+    Column() {
+      CacheTabsContentExample()
+    }
+  }
+}
+
 @Component
 struct Parent {
   @State isShowChild: boolean = true;
@@ -97,7 +107,6 @@ struct ShowColumn {
 }
 
 //自适应伸缩
-// @Entry
 @Component
 struct WidthExample {
   build() {
@@ -118,7 +127,6 @@ struct WidthExample {
 }
 
 //自适应延申
-// @Entry
 @Component
 struct ScrollExample {
   scroller: Scroller = new Scroller();
@@ -146,7 +154,6 @@ struct ScrollExample {
 /**
  * 层叠布局Stack
  */
-// @Entry
 @Component
 struct StackExample {
   build() {
@@ -161,7 +168,6 @@ struct StackExample {
 }
 
 //z序控制 ZIndex值大的覆盖值小的
-// @Entry
 @Component
 struct StackZIndexExample {
   build() {
@@ -185,7 +191,6 @@ struct StackZIndexExample {
  * 弹性布局Flex
  */
 //direction设置主轴方向，justifyContent设置主轴对齐方式，wrap设置单行/多行排列Wrap表示换行，NoWrap表示不换行，超出宽/高度自动压缩宽高. alignItems设置交叉轴对齐方式
-// @Entry
 @Component
 struct FlexExample {
   build() {
@@ -211,7 +216,6 @@ struct FlexExample {
 }
 
 //自适应拉伸
-// @Entry
 @Component
 struct FlexBasisExample {
   build() {
@@ -303,7 +307,6 @@ let AlignRue: Record<string, Record<string, string | VerticalAlign | HorizontalA
 }
 
 //以父容器为锚点
-// @Entry
 @Component
 struct RelativeContainerExample {
   build() {
@@ -337,7 +340,6 @@ let AlignBro: Record<string, Record<string, string | VerticalAlign | HorizontalA
   'left': { 'anchor': 'row1', 'align': HorizontalAlign.Start }
 }
 
-@Entry
 @Component
 struct RelativeContainerExample1 {
   build() {
@@ -361,7 +363,207 @@ struct RelativeContainerExample1 {
       .backgroundColor(Color.Blue)
       .justifyContent(FlexAlign.Center)
       .alignRules(AlignBro)
-      .offset({y : 20}) //使用offset进行相对位置对齐之后的额外偏移
+      .offset({ y: 20 }) //使用offset进行相对位置对齐之后的额外偏移
     }
+  }
+}
+
+/**
+ * 选项卡 TabBar + TabContent
+ */
+@Component
+struct TabsExample {
+  build() {
+    Tabs({ barPosition: BarPosition.End }) { //底部导航栏，Start为顶部导航栏
+      TabContent() { //导航内容展示
+        Text('首页内容').fontSize(30)
+      }.tabBar('首页') //页签内容
+      TabContent() {
+        Text('推荐内容').fontSize(30)
+      }.tabBar('推荐')
+
+      TabContent() {
+        Text('关注内容').fontSize(30)
+      }.tabBar('关注')
+
+      TabContent() {
+        Text('收藏内容').fontSize(30)
+      }.tabBar('收藏')
+    }
+    .vertical(true) //实现侧边栏需要将此属性置为true，默认为false
+    .scrollable(true) //限制导航栏的滑动切换 true为可滑动切换，false为限制滑动切换
+    .barMode(BarMode.Fixed) //设置导航栏是否可以滚动，如果导航栏条目数量过多可设置为scrollable可滚动
+    .width('100%')
+    .height(400)
+  }
+}
+
+//自定义导航栏
+@Component
+struct CustomTabsExample {
+  @State selectIndex: number = 0;
+
+  @Builder
+  tabBuilder(title: string, targetIndex: number) {
+    Column() {
+      Text(title)
+        .fontColor(this.selectIndex === targetIndex ? '#1698CE' : '#6B6B6B')
+    }
+  }
+
+  build() {
+    Tabs() {
+      TabContent() {
+        Text('首页内容展示').fontSize(30)
+      }.tabBar(this.tabBuilder('首页', 0))
+
+      TabContent() {
+        Text('推荐内容展示').fontSize(30)
+      }.tabBar(this.tabBuilder('推荐', 1))
+
+      TabContent() {
+        Text('关注内容展示').fontSize(30)
+      }.tabBar(this.tabBuilder('关注', 2))
+
+      TabContent() {
+        Text('收藏内容展示').fontSize(30)
+      }.tabBar(this.tabBuilder('收藏', 3))
+    }.onSelected((index: number) => {
+      this.selectIndex = index;
+    })
+  }
+}
+
+//切换到指定标签页
+//使用index属性或者controller来切换指定标签页
+@Component
+struct SwitchTabsExample {
+  marginTop : Record<string, number> = {
+    'top' : 10
+  }
+  @State currentIndex : number = 2;
+  @State currentAnimationMode : AnimationMode = AnimationMode.CONTENT_FIRST;
+  controller : TabsController = new TabsController();
+  build() {
+    Column() {
+      Tabs({barPosition : BarPosition.End, index : this.currentIndex, controller : this.controller}) {
+        TabContent() {
+          Text('首页内容展示').fontSize(30)
+        }.tabBar('首页')
+
+        TabContent() {
+          Text('推荐内容展示').fontSize(30)
+        }.tabBar('推荐')
+
+        TabContent() {
+          Text('关注内容展示').fontSize(30)
+        }.tabBar('关注')
+
+        TabContent() {
+          Text('收藏内容展示').fontSize(30)
+        }.tabBar('收藏')
+      }
+      .width('100%')
+      .height(500)
+      .animationMode(this.currentAnimationMode)
+      .onChange((index : number) => {
+        this.currentIndex = index;
+      })
+      /** 设置自定义拦截回调函数 在下一个页面即将展示时回调 返回true则展示下一页面，false则不会展示下一页面*/
+      .onContentWillChange((_currentIndex, comingIndex) => {
+
+        return true;
+      })
+
+      Button('动态切换AnimationMode').onClick((event: ClickEvent) => {
+        if (this.currentAnimationMode === AnimationMode.CONTENT_FIRST) {
+          this.currentAnimationMode = AnimationMode.ACTION_FIRST;
+        } else if (this.currentAnimationMode === AnimationMode.ACTION_FIRST) {
+          this.currentAnimationMode = AnimationMode.NO_ANIMATION;
+        } else if (this.currentAnimationMode === AnimationMode.NO_ANIMATION) {
+          this.currentAnimationMode = AnimationMode.CONTENT_FIRST_WITH_JUMP;
+        } else if (this.currentAnimationMode === AnimationMode.CONTENT_FIRST_WITH_JUMP) {
+          this.currentAnimationMode = AnimationMode.ACTION_FIRST_WITH_JUMP;
+        } else if (this.currentAnimationMode === AnimationMode.ACTION_FIRST_WITH_JUMP) {
+          this.currentAnimationMode = AnimationMode.CONTENT_FIRST;
+        }
+      })
+        .width('50%')
+        .margin(this.marginTop)
+
+      Button('index change page').onClick((event: ClickEvent) => {
+        this.currentIndex = (this.currentIndex + 1) % 4;
+      })
+        .width('50%')
+        .margin(this.marginTop)
+      
+      Button('controller change page').onClick((event: ClickEvent) => {
+        let index = (this.currentIndex + 1) % 4
+        this.controller.changeIndex(index);
+      })
+        .margin(this.marginTop)
+        .width('50%')
+    }
+    .width('100%')
+    .height('100%')
+  }
+}
+
+//控制页面缓存数
+//可以通过cachedMaxCount接口，设置子组件的最大缓存个数和缓存模式
+//默认情况下Tabs创建时会一次性预加载所有TabContent，而且已加载的页面不会释放
+/**
+ * TabsCacheMode枚举值为CACHE_BOTH_SIDE时，缓存当前显示的子组件和其两侧的子组件。
+ * TabsCacheMode枚举值为CACHE_LATEST_SWITCHED时，缓存当前显示的子组件和最近切换过的子组件。
+ * 存在翻页动画时，从页面1直接切换到页面3，翻页动画会包含页面2，页面2也会被加载，如果此时页面2不在缓存范围内，页面切换完成后会立马释放。
+ */
+@Component
+struct CacheTabsContentExample {
+  build() {
+    Tabs() {
+      TabContent() {
+        MyComponent({colorText : 'blue', color : Color.Blue})
+      }.tabBar('blue')
+
+      TabContent() {
+        MyComponent({colorText : 'yellow', color : Color.Yellow})
+      }.tabBar('yellow')
+
+      TabContent() {
+        MyComponent({colorText : 'pink', color : Color.Pink})
+      }.tabBar('pink')
+
+      TabContent() {
+        MyComponent({colorText : 'red', color : Color.Red })
+      }.tabBar('red')
+    }
+    .width('100%')
+    .height(500)
+    .cachedMaxCount(1, TabsCacheMode.CACHE_BOTH_SIDE)
+  }
+}
+
+@Component
+struct MyComponent {
+  private colorText : string = '';
+  private color : Color = Color.White;
+
+  aboutToAppear(): void {
+    console.info("aboutToAppear color:" + this.colorText);
+  }
+
+  aboutToDisappear(): void {
+    console.info("aboutToDisappear color:" + this.colorText);
+  }
+
+  build() {
+    Column() {
+      Text(this.colorText).fontSize(30)
+    }
+    .backgroundColor(this.color)
+    .width('100%')
+    .height('100%')
+    .justifyContent(FlexAlign.Center)
+    .alignItems(HorizontalAlign.Center)
   }
 }
