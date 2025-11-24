@@ -293,7 +293,7 @@ struct FlexBasisExample {
 }
 
 /**
- * 相对布局
+ * 相对布局RelativeContainer
  */
 
 let AlignRus: Record<string, Record<string, string | VerticalAlign | HorizontalAlign>> = {

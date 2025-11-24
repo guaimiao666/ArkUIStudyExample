@@ -3,7 +3,7 @@
 struct Start {
   build() {
     Column() {
-      ControlScrollPositionExample()
+      GridExample()
     }
   }
 }
@@ -157,3 +157,47 @@ struct ControlScrollPositionExample {
     }
   }
 }
+
+/**
+ * 网格
+ */
+@Component
+struct GridExample {
+  private services : Array<string> = ['1', '2', '3', '4']
+
+  build() {
+    Grid() {
+      ForEach(this.services, (item : string) => {
+        GridItem() {
+          Column() {
+            Text(item).fontSize(20)
+          }
+          .backgroundColor(Color.Grey)
+          .width('100%')
+          .height('100%')
+          .justifyContent(FlexAlign.Center)
+          .alignItems(HorizontalAlign.Center)
+        }
+      })
+    }
+    .rowsTemplate('1fr 1fr') //设置子组件行数以及行占比
+    .columnsTemplate('1fr 1fr') //设置子组件列数以及列占比
+    .rowsGap(10) //行间距
+    .columnsGap(10) //列间距
+  }
+}
+
+@Component
+struct GridExample1 {
+  build() {
+    Grid() {
+
+    }
+    .layoutDirection(GridDirection.Row) //设置主轴方向
+    .maxCount(3) //主轴最大子组件数量
+  }
+}
+
+/**
+ * 瀑布流 WaterFlow
+ */
