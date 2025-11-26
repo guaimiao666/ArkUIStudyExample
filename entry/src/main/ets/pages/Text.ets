@@ -1,5 +1,8 @@
 import { LengthMetrics } from '@kit.ArkUI'
 
+/**
+ * 文本使用
+ */
 @Entry
 @Component
 struct Start {

@@ -1,3 +1,6 @@
+/**
+ * 列表与网格
+ */
 @Entry
 @Component
 struct Start {

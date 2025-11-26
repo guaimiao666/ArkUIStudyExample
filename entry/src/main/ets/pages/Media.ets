@@ -1,3 +1,6 @@
+/**
+ * 媒体展示
+ */
 @Entry
 @Component
 struct Start {
@@ -225,6 +228,7 @@ struct SwiperExample {
     .interval(1000) //轮播间隔 毫秒
     .vertical(false) //轮播方向 true为竖直方向 false为横向
     .displayCount(2) //每页2个子项
+    .maintainVisibleContentPosition(true) //可在使用LazyForEach懒加载数据时（如通过onDataAdd新增数据），保持当前可见内容位置不变，避免因数据增删导致的视图跳动。该属性默认值为false。
     // .displayArrow(true, false) //导航箭头使用默认样式
     //自定义导航点样式
     .indicator(
