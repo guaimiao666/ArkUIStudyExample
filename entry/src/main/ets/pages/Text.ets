@@ -1,9 +1,11 @@
+import { LengthMetrics } from '@kit.ArkUI'
+
 @Entry
 @Component
 struct Start {
   build() {
     Column() {
-      TextInputExample()
+      SymbolGlyphExample()
     }
   }
 }
@@ -210,7 +212,7 @@ struct TextInputExample {
         //添加事件
         TextInput({ placeholder: 'input your text...' })
           .backgroundColor(Color.Yellow)
-          .onChange((value : string) => {
+          .onChange((value: string) => {
             //文本内容发生改变时触发回调
             console.info('文本发生变化:' + value)
           })
@@ -218,9 +220,232 @@ struct TextInputExample {
             // 按下输入法回车键时触发该回调
             console.info('按下输入法回车: ', enterKey, event.text);
           })
+          .onTextSelectionChange((selectionStart: number, selectionEnd: number) => {
+            // 文本选择的位置发生变化或编辑状态下光标位置发生变化时，触发该回调
+            console.info('onTextSelectionChange is triggering: ', selectionStart, selectionEnd);
+          })
+          .onSecurityStateChange((isShowPassword: boolean) => {
+            // 密码显隐状态切换时，触发该回调
+            console.info('onSecurityStateChange is triggering: ', isShowPassword);
+          })
+          .onWillInsert((info: InsertValue) => {
+            // 在将要输入时，触发该回调
+            console.info('onWillInsert is triggering: ', info.insertValue, info.insertOffset);
+            return true;
+          })
+          .onDidInsert((info: InsertValue) => {
+            // 在输入完成时，触发该回调
+            console.info('onDidInsert is triggering: ', info.insertValue, info.insertOffset);
+          })
+          .onWillDelete((info: DeleteValue) => {
+            // 在将要删除时，触发该回调
+            console.info('onWillDelete is triggering: ', info.deleteValue, info.deleteOffset);
+            return true;
+          })
+          .onDidDelete((info: DeleteValue) => {
+            // 在删除完成时，触发该回调
+            console.info('onDidDelete is triggering: ', info.deleteValue, info.deleteOffset);
+          })
+          .onFocus(() => {
+            // 绑定通用事件，输入框获焦时触发该回调
+            console.info('onFocus is triggering')
+          })
+
+        //contentType 自动填充
+        //输入框可以通过contentType属性设置自动填充类型。
+        TextInput({ placeholder: '自动填充类型 输入你的邮箱...' })
+          .width('95%')
+          .height(40)
+          .margin(20)
+          .contentType(ContentType.EMAIL_ADDRESS)
+
+        //设置属性
+        TextArea({ placeholder: '设置属性', text: '测试描边文字' })
+          .width('100%')
+          .margin(10)
+          .backgroundColor(Color.Pink)
+          .strokeWidth(LengthMetrics.px(3.0)) //设置文字描边宽度
+          .strokeColor(Color.Red) //设置文字描边颜色
+          .lineSpacing(LengthMetrics.px(20), { onlyBetweenLines: true }) //设置文本行间距
       }
       .justifyContent(FlexAlign.Start)
       .alignItems(HorizontalAlign.Start)
+    }
+  }
+}
+
+/**
+ * 富文本编辑（RichEditor）
+ */
+//查看此文档https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-common-components-richeditor
+
+/**
+ * 图标小符号 (SymbolGlyph/SymbolSpan)
+ */
+//SymbolSpan可作为Text的子组件用于显示图标小符号。可以在一个Text组件内添加多个SymbolSpan，从而展示一串连续的图标。
+//查看此文档https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-common-components-symbol
+@Component
+struct SymbolSpanExample {
+  build() {
+    Scroll() {
+      Row() {
+        Column() {
+          Text('48')
+          Text() {
+            SymbolSpan($r('sys.symbol.ohos_folder_badge_plus'))
+              .fontSize(48)
+              .renderingStrategy(SymbolRenderingStrategy.SINGLE) //设置组件渲染策略 单色 多色 分层
+              .fontColor([Color.Black, Color.Green, Color.White]) //设置组件颜色
+              .fontWeight(FontWeight.Bold) //设置组件粗细
+          }
+        }
+
+        Column() {
+          Text('96')
+          Text() {
+            SymbolSpan($r('sys.symbol.ohos_folder_badge_plus'))
+              .fontSize(96)
+              .renderingStrategy(SymbolRenderingStrategy.MULTIPLE_COLOR) //多色
+              .fontColor([Color.Black, Color.Green, Color.White])
+              .fontWeight(FontWeight.Normal)
+          }
+        }
+
+        Column() {
+          Text('128')
+          Text() {
+            SymbolSpan($r('sys.symbol.ohos_folder_badge_plus'))
+              .fontSize(128)
+              .renderingStrategy(SymbolRenderingStrategy.MULTIPLE_OPACITY) //分层
+              .fontColor([Color.Black, Color.Green, Color.White])
+              .fontWeight(FontWeight.Lighter)
+          }
+        }
+
+        //设置动效策略 只在启动时触发动效
+        Column() {
+          Text('缩放动效')
+          Text() {
+            SymbolSpan($r('sys.symbol.ohos_wifi'))
+              .fontSize(128)
+              .renderingStrategy(SymbolRenderingStrategy.SINGLE)
+              .fontColor([Color.Black, Color.Green, Color.White])
+              .fontWeight(FontWeight.Normal)
+              .effectStrategy(SymbolEffectStrategy.SCALE)
+          }
+        }
+
+        Column() {
+          Text('层级动效')
+          Text() {
+            SymbolSpan($r('sys.symbol.ohos_wifi'))
+              .fontSize(128)
+              .renderingStrategy(SymbolRenderingStrategy.SINGLE)
+              .fontColor([Color.Black, Color.Green, Color.White])
+              .fontWeight(FontWeight.Normal)
+              .effectStrategy(SymbolEffectStrategy.HIERARCHICAL)
+          }
+        }
+
+        //SymbolSpan不支持通用事件
+      }
+    }
+    .scrollable(ScrollDirection.Horizontal)
+  }
+}
+
+@Component
+struct SymbolGlyphExample {
+  @State isActive: boolean = true;
+  @State triggerValueReplace: number = 0;
+  @State renderMode: number = 1;
+  replaceFlag: boolean = true;
+
+  build() {
+    Scroll() {
+      Column({ space: '5' }) {
+        Column() {
+          Text("可变颜色动效")
+          SymbolGlyph($r('sys.symbol.ohos_wifi'))
+            .fontSize(96)
+            .symbolEffect(new HierarchicalSymbolEffect(EffectFillStyle.ITERATIVE), this.isActive)
+          Button(this.isActive ? '关闭' : '播放').onClick(() => {
+            this.isActive = !this.isActive;
+          })
+        }
+
+        Column() {
+          Text("弹跳动效")
+          SymbolGlyph($r('sys.symbol.ellipsis_message_1'))
+            .fontSize(96)
+            .fontColor([Color.Gray])
+            .symbolEffect(new BounceSymbolEffect(EffectScope.WHOLE, EffectDirection.UP), this.triggerValueReplace)
+          Button('trigger').onClick(() => {
+            this.triggerValueReplace = this.triggerValueReplace + 1;
+          })
+        }
+
+        Column() {
+          Text("禁用动效")
+          SymbolGlyph(this.replaceFlag ? $r('sys.symbol.eye_slash') : $r('sys.symbol.eye'))
+            .fontSize(96)
+            .renderingStrategy(this.renderMode)
+            .symbolEffect(new ReplaceSymbolEffect(EffectScope.LAYER, ReplaceEffectType.SLASH_OVERLAY), this.triggerValueReplace)
+          Button('trigger').onClick(() => {
+            this.replaceFlag = !this.replaceFlag;
+            this.triggerValueReplace = this.triggerValueReplace + 1;
+          })
+        }
+
+        Column() {
+          Text("快速替换动效")
+          SymbolGlyph(this.replaceFlag ? $r('sys.symbol.checkmark_circle') : $r('sys.symbol.repeat_1'))
+            .fontSize(96)
+            .symbolEffect(new ReplaceSymbolEffect(EffectScope.WHOLE, ReplaceEffectType.CROSS_FADE), this.triggerValueReplace)
+            .onClick(() => {
+              //添加点击事件
+            })
+          Button('trigger').onClick(() => {
+            this.replaceFlag = !this.replaceFlag;
+            this.triggerValueReplace = this.triggerValueReplace + 1;
+          })
+        }
+      }
+      .justifyContent(FlexAlign.Start)
+      .alignItems(HorizontalAlign.Center)
+    }
+  }
+}
+
+/**
+ * 属性字符串
+ */
+//https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-styled-string
+
+/**
+ * 图文混排
+ */
+@Component
+struct ImageAndTextSpanExample {
+  build() {
+    Column() {
+      Text() {
+        ImageSpan('')
+          .width(50)
+          .height(30)
+          .borderRadius(5)
+          .verticalAlign(ImageSpanAlignment.FOLLOW_PARAGRAPH)
+        Span('惊喜价 ￥1299')
+          .fontSize(25)
+          .fontColor(Color.Red)
+        Span('1599')
+          .decoration({
+            type: TextDecorationType.LineThrough,
+            color: Color.Grey,
+            style: TextDecorationStyle.SOLID
+          })
+          .fontSize(16)
+      }.textVerticalAlign(TextVerticalAlign.CENTER)
     }
   }
 }
