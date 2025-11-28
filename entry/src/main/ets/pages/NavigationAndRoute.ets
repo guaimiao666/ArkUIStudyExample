@@ -59,6 +59,12 @@ struct PageOne {
       this.pageParam = context.pathInfo.param as string //获取参数
     })
     .mode(NavDestinationMode.STANDARD) //页面显示类型
+    .title('page1') //设置标题
+    .onBackPressed(() => { //设置返回按下事件
+      this.pageInfos.pop()
+      console.info('onBackPressed callback')
+      return true
+    })
   }
 }
 
@@ -81,6 +87,7 @@ struct PageTwo {
     .onReady((context: NavDestinationContext) => {
       this.pageInfos = context.pathStack
     })
+    .title('page2')
   }
 }
 
@@ -103,5 +110,6 @@ struct PageThree {
     .onReady((context: NavDestinationContext) => {
       this.pageInfos = context.pathStack
     })
+    .title('page3')
   }
 }
